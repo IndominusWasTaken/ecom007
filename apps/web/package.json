@@ -1,0 +1,36 @@
+{
+  "name": "@ecom/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p ${PORT:-3000}",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@ecom/connectors": "workspace:*",
+    "@ecom/core": "workspace:*",
+    "@ecom/db": "workspace:*",
+    "@ecom/metrics": "workspace:*",
+    "@node-rs/argon2": "2.2.2",
+    "clsx": "2.1.1",
+    "echarts": "6.1.0",
+    "lucide-react": "1.55.0",
+    "next": "16.4.0",
+    "qrcode": "1.5.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwind-merge": "3.7.0",
+    "server-only": "0.0.1",
+    "pg-boss": "12.37.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tailwindcss": "4.3.3"
+  }
+}

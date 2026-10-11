@@ -140,12 +140,37 @@ export async function loadSeries(db: Db, q: MetricQuery, granularity: Granularit
     }
   }
   const buckets = new Map<string, Bag>();
+  // buckets are keyed by their start date (weeks start Monday); the first may begin before range.from
   for (const d of eachDay(q.range.from, q.range.to)) {
     const key = bucketOf(d, granularity);
     const b = buckets.get(key) ?? toBag(undefined);
     const day = byDay.get(d);
     if (day) for (const c of ALL_ADDITIVE) b[c] = b[c].plus(day[c]);
     buckets.set(key, b);
+  }
+  // distinct new / returning customers per bucket (not additive, so counted per bucket)
+  if (q.scope.storeIds.length) {
+    const bucketExpr = granularity === "day" ? sql`o.local_date` : granularity === "week" ? sql`date_trunc('week', o.local_date)::date` : sql`date_trunc('month', o.local_date)::date`;
+    const res2 = await db.execute<{ b: string; n: string; r: string }>(sql`
+      with firsts as (
+        select store_id, customer_id, min(local_date) first_date from orders
+        where not test and customer_id is not null and store_id in ${idList(q.scope.storeIds)} group by 1, 2
+      ), o as (
+        select o.store_id, o.customer_id, o.local_date, ${bucketExpr} as b, f.first_date
+        from orders o join firsts f on f.store_id = o.store_id and f.customer_id = o.customer_id
+        where not o.test and o.local_date between ${q.range.from} and ${q.range.to} and o.store_id in ${idList(q.scope.storeIds)}
+      )
+      select b::text b,
+        count(distinct (store_id, customer_id)) filter (where first_date >= greatest(b, ${q.range.from}::date))::text n,
+        count(distinct (store_id, customer_id)) filter (where first_date < greatest(b, ${q.range.from}::date))::text r
+      from o group by b`);
+    for (const r of res2.rows) {
+      const b = buckets.get(r.b);
+      if (b) {
+        b.new_customers = new Decimal(r.n);
+        b.returning_customers = new Decimal(r.r);
+      }
+    }
   }
   return [...buckets.entries()].map(([date, bag]) => ({ date, metrics: evaluate(bag, q.ctx) }));
 }

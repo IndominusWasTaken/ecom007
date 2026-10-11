@@ -1,7 +1,8 @@
 import "./env";
 import { PgBoss } from "pg-boss";
 import { BUSINESS_TZ } from "@ecom/core/config";
-import { closeDb } from "@ecom/db";
+import { adAccounts, closeDb, getDb } from "@ecom/db";
+import { remapAccount } from "./meta";
 import * as jobs from "./jobs";
 import { log } from "./log";
 
@@ -56,6 +57,21 @@ async function main() {
       }
     });
   }
+  // on-demand queues sent by the web app (Settings → Sync now, mapping changes)
+  await boss.createQueue("meta-remap", { policy: "standard" }).catch(() => undefined);
+  await boss.work<{ adAccountId?: number }>("meta-remap", async ([job]) => {
+    const db = getDb();
+    const ids = job?.data?.adAccountId ? [job.data.adAccountId] : (await db.select({ id: adAccounts.id }).from(adAccounts)).map((a) => a.id);
+    for (const id of ids) await remapAccount(db, id);
+    await boss.send("metrics-rebuild", null);
+  });
+  await boss.createQueue("history-reload", { policy: "standard" }).catch(() => undefined);
+  await boss.work<{ kind: "shopify" | "meta"; id: number }>("history-reload", async ([job]) => {
+    if (job.data.kind === "shopify") await jobs.shopifyHistory(job.data.id);
+    else await jobs.metaHistory(job.data.id);
+    await boss.send("metrics-rebuild", null);
+  });
+
   // first start: rates first (everything converts through them), then history
   await boss.send("fx-ecb", null);
   await boss.send("meta-accounts", null);
