@@ -1,7 +1,7 @@
 import "./env";
 import { PgBoss } from "pg-boss";
 import { BUSINESS_TZ } from "@ecom/core/config";
-import { adAccounts, closeDb, getDb } from "@ecom/db";
+import { adAccounts, closeDb, getDb, sql } from "@ecom/db";
 import { remapAccount } from "./meta";
 import * as jobs from "./jobs";
 import { log } from "./log";
@@ -42,6 +42,8 @@ async function main() {
   const boss = new PgBoss({ connectionString: process.env.DATABASE_URL!, schema: "pgboss", max: 3 });
   boss.on("error", (e) => log.error("pg-boss error", { error: String(e) }));
   await boss.start();
+  // runs left "running" by a previous stop or crash never finished
+  await getDb().execute(sql`update sync_runs set status = 'error', finished_at = now(), error = 'Interrupted (worker restarted)' where status = 'running'`);
 
   for (const d of DEFS) {
     await boss.createQueue(d.name, { policy: "exclusive", retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 6 * 3600 }).catch(() => undefined);

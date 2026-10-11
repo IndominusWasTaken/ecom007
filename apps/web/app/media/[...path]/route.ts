@@ -7,7 +7,7 @@ import { getSession } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 /** Downloaded creative media lives in the worker's MEDIA_DIR (default apps/worker/data/media). */
-const MEDIA_ROOT = path.resolve(process.env.MEDIA_DIR ?? path.resolve(process.cwd(), "../worker/data/media"));
+const MEDIA_ROOT = path.resolve(/*turbopackIgnore: true*/ process.env.MEDIA_DIR ?? path.join(/*turbopackIgnore: true*/ process.cwd(), "../worker/data/media"));
 
 const TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
