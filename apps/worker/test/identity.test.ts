@@ -9,6 +9,7 @@ import { Decimal } from "@ecom/core/money";
 const url = process.env.TEST_DATABASE_URL;
 
 describe.skipIf(!url)("All = sum of stores (database)", async () => {
+  if (!url) return; // the body still runs while collecting a skipped suite
   process.env.DATABASE_URL = url;
   const { getDb, loadTotals, resolveScope, sql } = await import("@ecom/db");
   const { ALL_ADDITIVE } = await import("@ecom/metrics");

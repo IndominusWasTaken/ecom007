@@ -600,7 +600,7 @@ export const orderShippingCosts = pgTable(
     cost: money("cost").notNull(),
     currency: varchar("currency", { length: 3 }).notNull(),
     carrier: varchar("carrier", { length: 64 }),
-    importedAt: created(),
+    createdAt: created(),
   },
   (t) => [uniqueIndex("order_shipping_costs_uq").on(t.storeId, t.orderName)],
 );
