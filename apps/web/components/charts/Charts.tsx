@@ -172,6 +172,7 @@ export function Waterfall({ steps, currency, height = 320 }: { steps: { label: s
             stack: "w",
             data: vals,
             barMaxWidth: 44,
+            labelLayout: { hideOverlap: true },
             label: { show: true, position: "top", color: t.ink, fontSize: 11, formatter: (p: { dataIndex: number }) => fmt(steps[p.dataIndex].value, "money", currency, true) },
           },
         ],

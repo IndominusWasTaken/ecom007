@@ -238,6 +238,8 @@ export async function rebuildStoreDays(db: Db, store: Store, dates: string[], fx
   const linesByOrder = groupBy(linesRes.rows, (l: any) => Number(l.order_id));
   const txnsByOrder = groupBy(txnRes.rows, (t: any) => Number(t.order_id));
   const lineCostUpdates: { id: number; cost: string | null; source: string }[] = [];
+  // unit costs resolved in this batch, so refunds rebuilt alongside their order see them
+  const batchCost = new Map<string, string | null>();
   const ordersByDate = new Map<string, NOrder[]>();
   const orderCosts: Record<string, { shippingCost: Decimal; handlingFee: Decimal; paymentFee: Decimal }> = {};
   const fxUpdates: { id: number; usd: string; eur: string; rev: string; revUsd: string; revEur: string }[] = [];
@@ -256,6 +258,7 @@ export async function rebuildStoreDays(db: Db, store: Store, dates: string[], fx
       const unitPriceEx = l.quantity ? D(l.gross_ex).div(l.quantity) : D(0);
       const resolved = resolveUnitCost(date, { typed, shopifyCost: v?.shopify_cost ?? null, fallbackPercent: fallbackPct, unitPriceExTax: unitPriceEx });
       lineCostUpdates.push({ id: Number(l.id), cost: resolved.cost ? toDb(resolved.cost) : null, source: resolved.source });
+      batchCost.set(l.shopify_id, resolved.cost ? toDb(resolved.cost) : null);
       if (l.requires_shipping) {
         items += l.quantity;
         weight += (v?.weight_grams ?? l.weight_grams ?? 0) * l.quantity;
@@ -345,7 +348,7 @@ export async function rebuildStoreDays(db: Db, store: Store, dates: string[], fx
         subtotal: l.subtotal,
         tax: l.tax,
         restocked: l.restocked,
-        unitCost: l.unit_cost,
+        unitCost: batchCost.has(l.order_line_shopify_id) ? batchCost.get(l.order_line_shopify_id)! : l.unit_cost,
       })),
       // refund shipping subtotal excludes tax; NRefund expects tax-inclusive when prices include tax
       shippingAmount: r.taxes_included ? D(r.shipping_amount).plus(r.shipping_tax) : r.shipping_amount,
