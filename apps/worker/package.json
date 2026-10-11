@@ -1,0 +1,23 @@
+{
+  "name": "@ecom/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "node --max-old-space-size=384 --import tsx src/main.ts",
+    "cli": "tsx src/cli.ts",
+    "seed-demo": "tsx src/seed-demo.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@ecom/connectors": "workspace:*",
+    "@ecom/core": "workspace:*",
+    "@ecom/db": "workspace:*",
+    "@ecom/metrics": "workspace:*",
+    "@node-rs/argon2": "2.2.2",
+    "dotenv": "18.0.7",
+    "pg-boss": "12.37.1",
+    "tsx": "4.23.15"
+  }
+}

@@ -661,6 +661,7 @@ CREATE TABLE "transactions" (
 	"gateway" varchar(128) NOT NULL,
 	"amount" numeric(20, 6) NOT NULL,
 	"currency" varchar(3) NOT NULL,
+	"test" boolean DEFAULT false NOT NULL,
 	"processed_at_utc" timestamp with time zone,
 	"actual_fee" numeric(20, 6),
 	"raw" jsonb

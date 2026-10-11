@@ -287,6 +287,7 @@ export const transactions = pgTable(
     gateway: varchar("gateway", { length: 128 }).notNull(),
     amount: money("amount").notNull(),
     currency: varchar("currency", { length: 3 }).notNull(),
+    test: boolean("test").notNull().default(false),
     processedAtUtc: ts("processed_at_utc"),
     /** Actual fee from Shopify Payments balance transactions, store currency. */
     actualFee: money("actual_fee"),

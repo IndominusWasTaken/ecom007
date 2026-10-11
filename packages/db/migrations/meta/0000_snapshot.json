@@ -1,5 +1,5 @@
 {
-  "id": "3aaf414d-4e85-4401-91c0-2e5956c42d56",
+  "id": "d0598bb9-3a9c-4acb-bfe8-562a1dd1cea9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -5449,6 +5449,13 @@
           "type": "varchar(3)",
           "primaryKey": false,
           "notNull": true
+        },
+        "test": {
+          "name": "test",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "processed_at_utc": {
           "name": "processed_at_utc",

@@ -108,3 +108,13 @@ export async function notify(db: Db, n: { kind: string; severity?: "info" | "war
     .values({ kind: n.kind, severity: n.severity ?? "info", title: n.title, body: n.body, link: n.link, dedupeKey: n.dedupeKey })
     .onConflictDoNothing();
 }
+
+// ---------- upsert helper ----------
+import { getTableColumns, type SQL } from "drizzle-orm";
+import type { PgTable } from "drizzle-orm/pg-core";
+
+/** `set` clause for ON CONFLICT DO UPDATE that takes every column from EXCLUDED except the keys. */
+export function excludedSet<T extends PgTable>(table: T, keep: string[]): Record<string, SQL> {
+  const cols = getTableColumns(table) as Record<string, { name: string }>;
+  return Object.fromEntries(Object.entries(cols).filter(([k]) => !keep.includes(k)).map(([k, c]) => [k, sql.raw(`excluded."${c.name}"`)]));
+}
