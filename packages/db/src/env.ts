@@ -1,11 +1,21 @@
-/** Load the repository-root .env when running scripts directly (services get env from the host). */
+/**
+ * Load .env: DOTENV_PATH when set (Windows services point it at C:\ecom\app\.env),
+ * otherwise the repository-root .env when running from source.
+ * Variables already in the environment are never overwritten.
+ */
 import { config } from "dotenv";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-for (const rel of ["../../../.env", "../../.env", "../.env"]) {
-  const p = fileURLToPath(new URL(rel, import.meta.url));
-  if (existsSync(p)) {
+const candidates = [process.env.DOTENV_PATH, ...["../../../.env", "../../.env", "../.env"].map((rel) => {
+  try {
+    return fileURLToPath(new URL(rel, import.meta.url));
+  } catch {
+    return undefined;
+  }
+})];
+for (const p of candidates) {
+  if (p && existsSync(p)) {
     config({ path: p, quiet: true });
     break;
   }

@@ -1,0 +1,22 @@
+# Caddy for Windows: automatic HTTPS for the dashboard.
+# Set DASH_DOMAIN in the service environment (e.g. dash.example.com) and point its DNS A record at the VPS.
+{
+	email {$ACME_EMAIL}
+	admin localhost:2019
+}
+
+{$DASH_DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+	reverse_proxy 127.0.0.1:{$WEB_PORT:3000}
+	log {
+		output file C:/ecom/logs/caddy-access.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}

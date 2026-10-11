@@ -36,7 +36,6 @@ const DEFS: Def[] = [
   { name: "domains", cron: "0 6 * * 1", tz: BUSINESS_TZ, run: jobs.domains },
   { name: "metrics-rebuild", cron: "* * * * *", run: jobs.metricsRebuild },
   { name: "sync-monitor", cron: "*/15 * * * *", run: jobs.syncMonitor },
-  { name: "backup", cron: "30 2 * * *", tz: BUSINESS_TZ, run: jobs.backup },
 ];
 
 async function main() {
@@ -57,6 +56,10 @@ async function main() {
       }
     });
   }
+  // Nightly backups run from Task Scheduler (infra/windows/backup.ps1); "Back up now" uses this queue.
+  await boss.createQueue("backup", { policy: "exclusive" }).catch(() => undefined);
+  await boss.work("backup", async () => void (await jobs.backup()));
+
   // on-demand queues sent by the web app (Settings → Sync now, mapping changes)
   await boss.createQueue("meta-remap", { policy: "standard" }).catch(() => undefined);
   await boss.work<{ adAccountId?: number }>("meta-remap", async ([job]) => {
