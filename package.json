@@ -1,0 +1,28 @@
+{
+  "name": "ecom007",
+  "private": true,
+  "description": "Self-hosted multi-store profit dashboard for Shopify + Meta",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter ./packages/** run build && pnpm --filter @ecom/web build",
+    "dev": "pnpm --parallel --filter @ecom/web --filter @ecom/worker dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "pnpm -r run typecheck",
+    "db:generate": "pnpm --filter @ecom/db generate",
+    "db:migrate": "pnpm --filter @ecom/db migrate",
+    "db:seed-demo": "pnpm --filter @ecom/worker seed-demo",
+    "metrics:doc": "pnpm --filter @ecom/metrics doc",
+    "user:create": "pnpm --filter @ecom/worker cli create-user",
+    "phase0": "pnpm --filter @ecom/worker cli phase0-check"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  },
+  "type": "module"
+}

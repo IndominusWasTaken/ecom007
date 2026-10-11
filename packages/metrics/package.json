@@ -1,0 +1,15 @@
+{
+  "name": "@ecom/metrics",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": { ".": "./src/index.ts", "./*": "./src/*.ts" },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "doc": "tsx scripts/gen-metrics-doc.ts"
+  },
+  "dependencies": { "@ecom/core": "workspace:*" },
+  "devDependencies": { "tsx": "4.23.15" }
+}
