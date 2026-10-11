@@ -6,9 +6,11 @@ coverage/
 .env
 .env.*
 !.env.example
-data/
-media/
-backups/
+/data/
+**/worker/data/
+/media/
+/backups/
+**/worker/backups/
 *.tsbuildinfo
 .DS_Store
 test-results/

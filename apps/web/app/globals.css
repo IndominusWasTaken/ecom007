@@ -94,6 +94,8 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* shared component classes live in the components layer so utilities can override them */
+@layer components {
 /* inputs share one look */
 .input {
   @apply h-9 rounded-lg border border-line bg-surface px-3 text-sm text-ink outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20;
@@ -140,4 +142,5 @@ select.input {
 }
 .pill {
   @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+}
 }
